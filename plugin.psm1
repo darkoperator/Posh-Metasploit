@@ -27,16 +27,16 @@ function Get-MSFLoadedPlugin
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0)]
+            ParameterSetName = "Index",
+            Position=0)]
         [Alias("Index")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            Position=0)]
         [psobject]$Session
     )
     BEGIN 
@@ -197,31 +197,31 @@ function Register-MSFPlugin
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Plugin Name
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
+            ValueFromPipelineByPropertyName=$true,
+            Position=1)]
         [string]$Name,
 
         # Plugin Options
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        Position=2)]
+            ValueFromPipelineByPropertyName=$true,
+            Position=2)]
         [hashtable]$Options = @{}
     )
     BEGIN 
@@ -359,19 +359,19 @@ function UnRegister-MSFPlugin
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Plugin Name

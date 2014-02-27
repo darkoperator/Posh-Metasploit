@@ -35,19 +35,19 @@ function Get-MSFSession
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session
     )
     BEGIN 
@@ -213,31 +213,31 @@ function Write-MSFMeterpreterConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Meterpreter Session Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=2,
+            ValueFromPipelineByPropertyName=$true)]
         [string]$Text
     )
     BEGIN 
@@ -413,19 +413,19 @@ function Read-MSFMeterpreterConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Meterpreter Session Id
@@ -583,7 +583,7 @@ function Read-MSFMeterpreterConsole
 .DESCRIPTION
    Finds compatible post modules for a given session on a Metasploit server.
 .EXAMPLE
-   Get-MSFSessionCompatPostModules -Id 0 -SessionId 2
+   Get-MSFSessionCompatPostModule -Id 0 -SessionId 2
 
 Name                                                                                                                 MSHost                                                                                                              
 ----                                                                                                                 ------                                                                                                                                                                                                                   
@@ -625,26 +625,26 @@ post/linux/gather/enum_configs                                                  
 post/linux/gather/checkvm                                                                                            192.168.1.104                                                                                                       
 
 #>
-function Get-MSFSessionCompatPostModules
+function Get-MSFSessionCompatPostModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Session Id
@@ -819,31 +819,31 @@ function Invoke-MSFMeterpreterCommand
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Meterpreter Session Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=2,
+            ValueFromPipelineByPropertyName=$true)]
         [string]$Command
     )
     BEGIN 
@@ -1017,31 +1017,31 @@ function Write-MSFShellConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Shell Session Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
+            Position=2,
+            ValueFromPipelineByPropertyName=$true)]
         [string]$Text
     )
     BEGIN 
@@ -1232,39 +1232,39 @@ function Read-MSFShellConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Shell Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Session",
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Shell buffer position
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+            ValueFromPipelineByPropertyName=$true,
+            ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
+            ValueFromPipelineByPropertyName=$true,
+            ParameterSetName = "Index")]
         [int]$Position
     )
     BEGIN 
@@ -1426,30 +1426,30 @@ function Remove-MSFSession
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Session",
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=1,
+            ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId
     )
     BEGIN 

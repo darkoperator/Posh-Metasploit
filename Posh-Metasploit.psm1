@@ -1030,8 +1030,6 @@ function Remove-MSFAuthToken
 }
 
 
-
-
 <#
 .Synopsis
    Enumerates all current Metasploit server threads.
@@ -1375,3 +1373,50 @@ function Remove-MSFThread
         }
     }
 }
+
+function Get-PoshMSFersion
+ {
+     [CmdletBinding()]
+     [OutputType([pscustomobject])]
+     Param
+     ()
+ 
+     Begin
+     {
+        $currentversion = ""
+        $installed = Get-Module -Name "Posh-Metasploit" 
+     }
+     Process
+     {
+        $webClient = New-Object System.Net.WebClient
+        Try
+        {
+            $current = Invoke-Expression  $webClient.DownloadString('https://raw.github.com/darkoperator/Posh-Metasploit/master/Posh-Metasploit.psd1')
+            $currentversion = $current.moduleversion
+        }
+        Catch
+        {
+            Write-Warning "Could not retrieve the current version."
+        }
+        $majorver,$minorver = $currentversion.split(".")
+
+        if ($majorver -gt $installed.Version.Major)
+        {
+            Write-Warning "You are running an outdated version of the module."
+        }
+        elseif ($minorver -gt $installed.Version.Minor)
+        {
+            Write-Warning "You are running an outdated version of the module."
+        } 
+        
+        $props = @{
+            InstalledVersion = "$($installed.Version)"
+            CurrentVersion   = $currentversion
+        }
+        New-Object -TypeName psobject -Property $props
+     }
+     End
+     {
+          
+     }
+ }

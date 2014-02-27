@@ -20,31 +20,31 @@ function Set-MSFGlobalVariable
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Variable name
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
+            ValueFromPipelineByPropertyName=$true,
+            Position=1)]
         [string]$Name,
 
         # Variable Value
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=2)]
+            ValueFromPipelineByPropertyName=$true,
+            Position=2)]
         [string]$Value
 
        
@@ -180,19 +180,19 @@ function Remove-MSFGlobalVariable
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session,
 
         # Variable name
@@ -334,19 +334,19 @@ function Save-MSFConfig
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+            ParameterSetName = "Index",
+            Position=0,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+            ParameterSetName = "Session",
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=0)]
         [psobject]$Session
     )
     BEGIN 
