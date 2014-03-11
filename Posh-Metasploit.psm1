@@ -464,10 +464,7 @@ function Get-MSFCoreInfo
         Position=0)]
         [psobject]$Session
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN{}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -590,22 +587,19 @@ function Get-MSFAuthToken
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0)]
+                   ParameterSetName = "Index",
+                   Position = 0)]
         [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
+                   ParameterSetName = "Session",
+                   ValueFromPipeline = $true,
         Position=0)]
         [psobject]$Session
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN{}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -757,10 +751,7 @@ function New-MSFAuthToken
         [switch]$SetSession
 
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN{}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -917,10 +908,7 @@ function Remove-MSFAuthToken
         [string]$Token
 
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN {}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -1058,10 +1046,7 @@ function Get-MSFThread
         Position=0)]
         [psobject]$Session
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN {}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -1233,10 +1218,7 @@ function Remove-MSFThread
         Position=1)]
         [Int]$ThreadId
     )
-    BEGIN 
-    {
-        
-    }
+    BEGIN {}
     PROCESS 
     {    
         if ($Id -ge 0)
@@ -1375,12 +1357,10 @@ function Remove-MSFThread
 }
 
 function Get-PoshMSFersion
- {
+{
      [CmdletBinding()]
      [OutputType([pscustomobject])]
-     Param
-     ()
- 
+     Param()
      Begin
      {
         $currentversion = ""
@@ -1415,8 +1395,5 @@ function Get-PoshMSFersion
         }
         New-Object -TypeName psobject -Property $props
      }
-     End
-     {
-          
-     }
- }
+     End{}
+}
