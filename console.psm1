@@ -21,19 +21,19 @@ function Get-MSFConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session
     )
     BEGIN 
@@ -52,7 +52,7 @@ function Get-MSFConsole
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -65,28 +65,28 @@ function Get-MSFConsole
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
         
         $request_reply = $MSession.Manager.ListConsoles()
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -105,10 +105,10 @@ function Get-MSFConsole
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -120,12 +120,12 @@ function Get-MSFConsole
                         {
                             $consoleprops = @{}
                             $consoleprops.add('MSHost', $MSession.Host)
-                            $consoleprops.Add('Propmpt', $console.prompt)
+                            $consoleprops.Add('Prompt', $console.prompt)
                             $consoleprops.Add('ConsoleId', $console.id)
                             $consoleprops.Add('Busy', $console.busy)
-                            $consoleprops.Add("MSSessionID", $MSession.Id)
+                            $consoleprops.Add('MSSessionID', $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $consoleprops
-                            $consoleobj.pstypenames[0] = "Metasploit.Console"
+                            $consoleobj.pstypenames[0] = 'Metasploit.Console'
                             $consoleobj   
                         }
                     }
@@ -147,9 +147,9 @@ function Get-MSFConsole
                     $consoleprops.Add('Propmpt', $console.prompt)
                     $consoleprops.Add('ConsoleId', $console.id)
                     $consoleprops.Add('Busy', $console.busy)
-                    $consoleprops.Add("MSSessionID", $MSession.Id)
+                    $consoleprops.Add('MSSessionID', $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $consoleprops
-                    $consoleobj.pstypenames[0] = "Metasploit.Console"
+                    $consoleobj.pstypenames[0] = 'Metasploit.Console'
                     $consoleobj   
                 }
             }
@@ -180,19 +180,19 @@ function New-MSFConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session
     )
     BEGIN 
@@ -211,7 +211,7 @@ function New-MSFConsole
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -224,28 +224,28 @@ function New-MSFConsole
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
         
         $request_reply = $MSession.Manager.CreateConsole()
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -264,10 +264,10 @@ function New-MSFConsole
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -280,9 +280,9 @@ function New-MSFConsole
                         $consoleprops.Add('Propmpt', $request_reply.prompt)
                         $consoleprops.Add('ConsoleId', $request_reply.id)
                         $consoleprops.Add('Busy', $request_reply.busy)
-                        $consoleprops.Add("MSSessionID", $MSession.Id)
+                        $consoleprops.Add('MSSessionID', $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $consoleprops
-                        $consoleobj.pstypenames[0] = "Metasploit.Console"
+                        $consoleobj.pstypenames[0] = 'Metasploit.Console'
                         $consoleobj     
                     }
                 }
@@ -301,9 +301,9 @@ function New-MSFConsole
                 $consoleprops.Add('Propmpt', $request_reply.prompt)
                 $consoleprops.Add('ConsoleId', $request_reply.id)
                 $consoleprops.Add('Busy', $request_reply.busy)
-                $consoleprops.Add("MSSessionID", $MSession.Id)
+                $consoleprops.Add('MSSessionID', $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $consoleprops
-                $consoleobj.pstypenames[0] = "Metasploit.Console"
+                $consoleobj.pstypenames[0] = 'Metasploit.Console'
                 $consoleobj   
             }
         }
@@ -331,30 +331,30 @@ function Remove-MSFConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+                   ParameterSetName = 'Session',
+                   Position=1,
+                   ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+                   ParameterSetName = 'Index',
+                   Position=1,
+                   ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId
     )
     BEGIN 
@@ -373,7 +373,7 @@ function Remove-MSFConsole
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -386,14 +386,14 @@ function Remove-MSFConsole
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
-        Write-Verbose "Checking existing consoles"
+        Write-Verbose 'Checking existing consoles'
        
         $current_consoles = Get-MSFConsole -Session $MSession 
         
@@ -415,24 +415,24 @@ function Remove-MSFConsole
         }
         else
         {
-            Write-Warning "There are no consoles to interact with."
+            Write-Warning 'There are no consoles to interact with.'
             return
         }
 
         $request_reply = $MSession.Manager.DestroyConsole($Id)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -451,10 +451,10 @@ function Remove-MSFConsole
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -463,9 +463,9 @@ function Remove-MSFConsole
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $pluginobj = New-Object -TypeName psobject -Property $request_reply
-                        $pluginobj.pstypenames[0] = "Metasploit.Action"
+                        $pluginobj.pstypenames[0] = 'Metasploit.Action'
                         $pluginobj
                     }
                 }
@@ -480,9 +480,9 @@ function Remove-MSFConsole
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $pluginobj = New-Object -TypeName psobject -Property $request_reply
-                $pluginobj.pstypenames[0] = "Metasploit.Action"
+                $pluginobj.pstypenames[0] = 'Metasploit.Action'
                 $pluginobj
             }
         }
@@ -511,31 +511,31 @@ function Write-MSFConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+                   Position=1,
+                   ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
+                   Position=2,
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Text
     )
     BEGIN 
@@ -554,7 +554,7 @@ function Write-MSFConsole
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -567,12 +567,12 @@ function Write-MSFConsole
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $current_consoles = Get-MSFConsole -Session $MSession 
@@ -595,25 +595,25 @@ function Write-MSFConsole
         }
         else
         {
-            Write-Warning "There are no consoles to interact with."
+            Write-Warning 'There are no consoles to interact with.'
             return
         }
         
-        Write-Verbose "Writing text to the console."
+        Write-Verbose 'Writing text to the console.'
         $request_reply = $MSession.Manager.WriteToConsole($ConsoleId, $Text)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -632,10 +632,10 @@ function Write-MSFConsole
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -645,9 +645,9 @@ function Write-MSFConsole
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('Command', $Command)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
-                        $writeobj.pstypenames[0] = "Metasploit.Console.Write"
+                        $writeobj.pstypenames[0] = 'Metasploit.Console.Write'
                         $writeobj
                     }
                 }
@@ -663,9 +663,9 @@ function Write-MSFConsole
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('Text', $Text.TrimEnd())
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
-                $writeobj.pstypenames[0] = "Metasploit.Console.write"
+                $writeobj.pstypenames[0] = 'Metasploit.Console.write'
                 $writeobj
             }
         }
@@ -719,31 +719,31 @@ function Invoke-MSFConsoleCommand
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+                   Position=1,
+                   ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
+                   Position=2,
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Command
     )
     BEGIN 
@@ -763,7 +763,7 @@ function Invoke-MSFConsoleCommand
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -776,12 +776,12 @@ function Invoke-MSFConsoleCommand
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $current_consoles = Get-MSFConsole -Session $MSession 
@@ -804,25 +804,25 @@ function Invoke-MSFConsoleCommand
         }
         else
         {
-            Write-Warning "There are no consoles to interact with."
+            Write-Warning 'There are no consoles to interact with.'
             return
         }
         
         Write-Verbose "Executing command $command"
         $request_reply = $MSession.Manager.WriteToConsole($ConsoleId, $Command)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -841,10 +841,10 @@ function Invoke-MSFConsoleCommand
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -854,9 +854,9 @@ function Invoke-MSFConsoleCommand
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('Command', $Command)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
-                        $writeobj.pstypenames[0] = "Metasploit.Console.Write"
+                        $writeobj.pstypenames[0] = 'Metasploit.Console.Write'
                         $writeobj
                     }
                 }
@@ -866,7 +866,7 @@ function Invoke-MSFConsoleCommand
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -876,9 +876,9 @@ function Invoke-MSFConsoleCommand
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('Command', $Command)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
-                $writeobj.pstypenames[0] = "Metasploit.Console.write"
+                $writeobj.pstypenames[0] = 'Metasploit.Console.write'
                 $writeobj
             }
         }
@@ -922,25 +922,25 @@ function Read-MSFConsole
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
+                   Position=1,
+                   ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId
     )
     BEGIN 
@@ -959,7 +959,7 @@ function Read-MSFConsole
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -972,12 +972,12 @@ function Read-MSFConsole
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $current_consoles = Get-MSFConsole -Session $MSession 
@@ -1000,24 +1000,24 @@ function Read-MSFConsole
         }
         else
         {
-            Write-Warning "There are no consoles to interact with."
+            Write-Warning 'There are no consoles to interact with.'
             return
         }
         
         $request_reply = $MSession.Manager.ReadConsole($ConsoleId)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -1036,10 +1036,10 @@ function Read-MSFConsole
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
@@ -1048,9 +1048,9 @@ function Read-MSFConsole
                     if ($request_reply.ContainsKey('data'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
-                        $writeobj.pstypenames[0] = "Metasploit.Console.Write"
+                        $writeobj.pstypenames[0] = 'Metasploit.Console.Write'
                         $writeobj
                     }
                 }
@@ -1060,7 +1060,7 @@ function Read-MSFConsole
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -1069,9 +1069,9 @@ function Read-MSFConsole
             if ($request_reply.ContainsKey('data'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
-                $writeobj.pstypenames[0] = "Metasploit.Console.write"
+                $writeobj.pstypenames[0] = 'Metasploit.Console.write'
                 $writeobj
             }
         }

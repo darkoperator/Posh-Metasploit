@@ -20,16 +20,16 @@ function Set-MSFDBHost
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -48,13 +48,13 @@ function Set-MSFDBHost
         # State of the host ("Alive","Down","Unknown"). 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("Alive","Down","Unknown")]
+        [ValidateSet('Alive','Down','Unknown')]
         [string]$State,
 
         # General Name ame of the Operating System
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("Linux", "Mac OS X","Microsoft Windows","FreeBSD","NetBSD","OpenBSD","VMware","Unknown")]
+        [ValidateSet('Linux', 'Mac OS X','Microsoft Windows','FreeBSD','NetBSD','OpenBSD','VMware','Unknown')]
         [string]$OSName,
 
         # OS Flavor (XP, 7, 2008, ESXi).
@@ -75,7 +75,7 @@ function Set-MSFDBHost
         # Operating System Architecture.
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("x86","x86_64","MIPS","MIPSBE","MIPSLE","PPC","SPARC","ARMLE","ARMBE")]
+        [ValidateSet('x86','x86_64','MIPS','MIPSBE','MIPSLE','PPC','SPARC','ARMLE','ARMBE')]
         [string]$Architecture,
 
         # MAC Address of the main interface to reach the host.
@@ -91,13 +91,13 @@ function Set-MSFDBHost
         # What is the purpose of the host.
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("Device", "Server","Client")]
+        [ValidateSet('Device', 'Server','Client')]
         [string]$Purpose,
 
         # If it is a Virtual Machine what Hypervisor it is. 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("VMWare", "QEMU", "Xen", "Hyper-V", "VirtualBox", "Parallels")]
+        [ValidateSet('VMWare', 'QEMU', 'Xen', 'Hyper-V', 'VirtualBox', 'Parallels')]
         [string]$HyperVisor,
 
         # Database Workspace, if none Default will be use.
@@ -123,7 +123,7 @@ function Set-MSFDBHost
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -136,12 +136,12 @@ function Set-MSFDBHost
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $dbops = New-Object 'system.collections.generic.dictionary[string,object]'
@@ -212,21 +212,21 @@ function Set-MSFDBHost
             $dbops.Add('workspace', $Workspace)
         }
        
-        $request_reply = $MSession.Session.Execute("db.report_host", $dbops)
+        $request_reply = $MSession.Session.Execute('db.report_host', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -245,21 +245,21 @@ function Set-MSFDBHost
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.report_host", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.report_host', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID",$Id)
+                        $request_reply.Add('MSSessionID',$Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -269,7 +269,7 @@ function Set-MSFDBHost
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -278,9 +278,9 @@ function Set-MSFDBHost
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID",$Id)
+                $request_reply.Add('MSSessionID',$Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -319,16 +319,16 @@ function Get-MSFDBHost
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -372,7 +372,7 @@ function Get-MSFDBHost
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -385,12 +385,12 @@ function Get-MSFDBHost
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $dbops = New-Object 'system.collections.generic.dictionary[string,object]'
@@ -420,21 +420,21 @@ function Get-MSFDBHost
             $dbops.Add('addresses', $IPAddresses)
         }
        
-        $request_reply = $MSession.Session.Execute("db.hosts", $dbops)
+        $request_reply = $MSession.Session.Execute('db.hosts', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -453,36 +453,36 @@ function Get-MSFDBHost
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.hosts", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.hosts', $dbops)
                     if ($request_reply.ContainsKey('hosts'))
                     {
                         foreach ($dbhost in $request_reply['hosts'])
                         {
                             $hostprops = [ordered]@{}
-                            $hostprops.Add("Address", $dbhost.address)
-                            $hostprops.Add("Name", $dbhost.name)
-                            $hostprops.Add("State", $dbhost.state)
-                            $hostprops.Add("Mac", $dbhost.mac)
-                            $hostprops.Add("OS_Name", $dbhost.os_name)
-                            $hostprops.Add("OS_Flavor", $dbhost.os_flavor)
-                            $hostprops.Add("OS_SP", $dbhost.so_sp)
-                            $hostprops.Add("OS_Lang", $dbhost.os_lang)
-                            $hostprops.Add("Info", $dbhost.info)
-                            $hostprops.Add("Purpose", $dbhost.purpose)
-                            $hostprops.Add("Updated", $origin.AddSeconds($dbhost.updated_at))
-                            $hostprops.Add("Created", $origin.AddSeconds($dbhost.created_at))
-                            $hostprops.Add("MSHost", $MSession.Host)
-                            $hostprops.Add("MSSessionID", $MSession.Id)
+                            $hostprops.Add('Address', $dbhost.address)
+                            $hostprops.Add('Name', $dbhost.name)
+                            $hostprops.Add('State', $dbhost.state)
+                            $hostprops.Add('Mac', $dbhost.mac)
+                            $hostprops.Add('OS_Name', $dbhost.os_name)
+                            $hostprops.Add('OS_Flavor', $dbhost.os_flavor)
+                            $hostprops.Add('OS_SP', $dbhost.so_sp)
+                            $hostprops.Add('OS_Lang', $dbhost.os_lang)
+                            $hostprops.Add('Info', $dbhost.info)
+                            $hostprops.Add('Purpose', $dbhost.purpose)
+                            $hostprops.Add('Updated', $origin.AddSeconds($dbhost.updated_at))
+                            $hostprops.Add('Created', $origin.AddSeconds($dbhost.created_at))
+                            $hostprops.Add('MSHost', $MSession.Host)
+                            $hostprops.Add('MSSessionID', $MSession.Id)
                             $hostobj = New-Object -TypeName psobject -Property $hostprops
-                            $hostobj.pstypenames[0] = "Metasploit.host"
+                            $hostobj.pstypenames[0] = 'Metasploit.host'
                             $hostobj 
                         }
                     }
@@ -493,7 +493,7 @@ function Get-MSFDBHost
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -504,22 +504,22 @@ function Get-MSFDBHost
                 foreach ($dbhost in $request_reply['hosts'])
                 {
                     $hostprops = [ordered]@{}
-                    $hostprops.Add("Address", $dbhost.address)
-                    $hostprops.Add("Name", $dbhost.name)
-                    $hostprops.Add("State", $dbhost.state)
-                    $hostprops.Add("Mac", $dbhost.mac)
-                    $hostprops.Add("OS_Name", $dbhost.os_name)
-                    $hostprops.Add("OS_Flavor", $dbhost.os_flavor)
-                    $hostprops.Add("OS_SP", $dbhost.so_sp)
-                    $hostprops.Add("OS_Lang", $dbhost.os_lang)
-                    $hostprops.Add("Info", $dbhost.info)
-                    $hostprops.Add("Purpose", $dbhost.purpose)
-                    $hostprops.Add("Updated", $origin.AddSeconds($dbhost.updated_at))
-                    $hostprops.Add("Created", $origin.AddSeconds($dbhost.created_at))
-                    $hostprops.Add("MSHost", $MSession.Host)
-                    $hostprops.Add("MSSessionID", $MSession.Id)
+                    $hostprops.Add('Address', $dbhost.address)
+                    $hostprops.Add('Name', $dbhost.name)
+                    $hostprops.Add('State', $dbhost.state)
+                    $hostprops.Add('Mac', $dbhost.mac)
+                    $hostprops.Add('OS_Name', $dbhost.os_name)
+                    $hostprops.Add('OS_Flavor', $dbhost.os_flavor)
+                    $hostprops.Add('OS_SP', $dbhost.so_sp)
+                    $hostprops.Add('OS_Lang', $dbhost.os_lang)
+                    $hostprops.Add('Info', $dbhost.info)
+                    $hostprops.Add('Purpose', $dbhost.purpose)
+                    $hostprops.Add('Updated', $origin.AddSeconds($dbhost.updated_at))
+                    $hostprops.Add('Created', $origin.AddSeconds($dbhost.created_at))
+                    $hostprops.Add('MSHost', $MSession.Host)
+                    $hostprops.Add('MSSessionID', $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $hostprops
-                    $consoleobj.pstypenames[0] = "Metasploit.host"
+                    $consoleobj.pstypenames[0] = 'Metasploit.host'
                     $consoleobj 
                 }
             }
@@ -548,16 +548,16 @@ function Remove-MSFDBHost
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -589,7 +589,7 @@ function Remove-MSFDBHost
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -602,12 +602,12 @@ function Remove-MSFDBHost
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $dbops = New-Object 'system.collections.generic.dictionary[string,object]'
@@ -622,21 +622,21 @@ function Remove-MSFDBHost
             $dbops.Add('workspace', $Workspace)
         }
        
-        $request_reply = $MSession.Session.Execute("db.del_host", $dbops)
+        $request_reply = $MSession.Session.Execute('db.del_host', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -655,34 +655,34 @@ function Remove-MSFDBHost
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.del_host", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.del_host', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $deleteprops = [ordered]@{}
                         $deleteprops.add('MSHost', $MSession.Host)
-                        $deleteprops.Add("MSSessionID", $Id)
+                        $deleteprops.Add('MSSessionID', $Id)
                         $deletedrecs = @()
                         foreach ($prop in $request_reply.keys)
                         {
-                            if ($prop -eq "deleted")
+                            if ($prop -eq 'deleted')
                             {
                                 foreach ($record in $request_reply['deleted'] )
                                 {
                                     $deletedrecs += $record
                                 }
-                                $deleteprops.add("deleted",$deletedrecs)
+                                $deleteprops.add('deleted',$deletedrecs)
                             }
                         }
                         $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                        $connectobj.pstypenames[0] = "Metasploit.Removed.Hosts"
+                        $connectobj.pstypenames[0] = 'Metasploit.Removed.Hosts'
                         $connectobj 
                     }
                 }
@@ -692,7 +692,7 @@ function Remove-MSFDBHost
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -702,21 +702,21 @@ function Remove-MSFDBHost
             {
                 $deleteprops = [ordered]@{}
                 $deleteprops.add('MSHost', $MSession.Host)
-                $deleteprops.Add("MSSessionID", $Id)
+                $deleteprops.Add('MSSessionID', $Id)
                 $deletedrecs = @()
                 foreach ($prop in $request_reply.keys)
                 {
-                    if ($prop -eq "deleted")
+                    if ($prop -eq 'deleted')
                     {
                         foreach ($record in $request_reply['deleted'] )
                         {
                             $deletedrecs += $record
                         }
-                        $deleteprops.add("deleted",$deletedrecs)
+                        $deleteprops.add('deleted',$deletedrecs)
                     }
                 }
                 $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                $connectobj.pstypenames[0] = "Metasploit.Removed.Hosts"
+                $connectobj.pstypenames[0] = 'Metasploit.Removed.Hosts'
                 $connectobj 
             }
         }
@@ -751,16 +751,16 @@ function Get-MSFDBServcie
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -818,7 +818,7 @@ function Get-MSFDBServcie
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -831,12 +831,12 @@ function Get-MSFDBServcie
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -882,21 +882,21 @@ function Get-MSFDBServcie
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.services", $dbops)
+        $request_reply = $MSession.Session.Execute('db.services', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -915,32 +915,32 @@ function Get-MSFDBServcie
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.services", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.services', $dbops)
                     if ($request_reply.ContainsKey('services'))
                     {
                         foreach ($dbsrv in $request_reply['services'])
                         {
                             $srvprops = [ordered]@{}
-                            $srvprops.Add("Host", $dbsrv.host)
-                            $srvprops.Add("Port", $dbsrv.port)
-                            $srvprops.Add("proto", $dbsrv.proto)
-                            $srvprops.Add("Name", $dbsrv.name)
-                            $srvprops.Add("State", $dbsrv.state)
-                            $srvprops.Add("Info", $dbsrv.info)
-                            $srvprops.Add("Updated", $origin.AddSeconds($dbsrv.updated_at))
-                            $srvprops.Add("Created", $origin.AddSeconds($dbsrv.created_at))
-                            $srvprops.Add("MSHost", $MSession.Host)
-                            $srvprops.Add("MSSessionID", $MSession.Id)
+                            $srvprops.Add('Host', $dbsrv.host)
+                            $srvprops.Add('Port', $dbsrv.port)
+                            $srvprops.Add('proto', $dbsrv.proto)
+                            $srvprops.Add('Name', $dbsrv.name)
+                            $srvprops.Add('State', $dbsrv.state)
+                            $srvprops.Add('Info', $dbsrv.info)
+                            $srvprops.Add('Updated', $origin.AddSeconds($dbsrv.updated_at))
+                            $srvprops.Add('Created', $origin.AddSeconds($dbsrv.created_at))
+                            $srvprops.Add('MSHost', $MSession.Host)
+                            $srvprops.Add('MSSessionID', $MSession.Id)
                             $srvobj = New-Object -TypeName psobject -Property $srvprops
-                            $srvobj.pstypenames[0] = "Metasploit.Service"
+                            $srvobj.pstypenames[0] = 'Metasploit.Service'
                             $srvobj 
                         }
                     }
@@ -951,7 +951,7 @@ function Get-MSFDBServcie
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -962,18 +962,18 @@ function Get-MSFDBServcie
                 foreach ($dbsrv in $request_reply['services'])
                 {
                     $srvprops = [ordered]@{}
-                    $srvprops.Add("Host", $dbsrv.host)
-                    $srvprops.Add("Port", $dbsrv.port)
-                    $srvprops.Add("proto", $dbsrv.proto)
-                    $srvprops.Add("Name", $dbsrv.name)
-                    $srvprops.Add("State", $dbsrv.state)
-                    $srvprops.Add("Info", $dbsrv.info)
-                    $srvprops.Add("Updated", $origin.AddSeconds($dbsrv.updated_at))
-                    $srvprops.Add("Created", $origin.AddSeconds($dbsrv.created_at))
-                    $srvprops.Add("MSHost", $MSession.Host)
-                    $srvprops.Add("MSSessionID", $MSession.Id)
+                    $srvprops.Add('Host', $dbsrv.host)
+                    $srvprops.Add('Port', $dbsrv.port)
+                    $srvprops.Add('proto', $dbsrv.proto)
+                    $srvprops.Add('Name', $dbsrv.name)
+                    $srvprops.Add('State', $dbsrv.state)
+                    $srvprops.Add('Info', $dbsrv.info)
+                    $srvprops.Add('Updated', $origin.AddSeconds($dbsrv.updated_at))
+                    $srvprops.Add('Created', $origin.AddSeconds($dbsrv.created_at))
+                    $srvprops.Add('MSHost', $MSession.Host)
+                    $srvprops.Add('MSSessionID', $MSession.Id)
                     $srvobj = New-Object -TypeName psobject -Property $srvprops
-                    $srvobj.pstypenames[0] = "Metasploit.Service"
+                    $srvobj.pstypenames[0] = 'Metasploit.Service'
                     $srvobj 
                 }
             }
@@ -1003,51 +1003,51 @@ function Set-MSFDBServcie
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
 
         # Port list or range to filter
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Port,
 
         # Filter services by protocol TCP or UDP
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [ValidateSet('TCP', 'UDP')]
         [string]$Protocol,
 
         # Filter services by name
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Name,
 
         # IPAddress to associate service with.
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$IPAddress,
 
         # IPAddress to associate service with.
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [ValidateSet('Open', 'Close')]
         [string]$state,
 
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Workspace
        
     )
@@ -1068,7 +1068,7 @@ function Set-MSFDBServcie
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -1081,12 +1081,12 @@ function Set-MSFDBServcie
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -1122,20 +1122,20 @@ function Set-MSFDBServcie
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.report_service", $dbops)
-        if ($request_reply.ContainsKey("error_code"))
+        $request_reply = $MSession.Session.Execute('db.report_service', $dbops)
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -1154,21 +1154,21 @@ function Set-MSFDBServcie
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.report_service", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.report_service', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -1178,7 +1178,7 @@ function Set-MSFDBServcie
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -1187,9 +1187,9 @@ function Set-MSFDBServcie
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $Id)
+                $request_reply.Add('MSSessionID', $Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -1218,41 +1218,41 @@ function Remove-MSFDBServcie
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
 
         # Port list or range to filter
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Port,
 
         # Filter services by name
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("sname")]
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('sname')]
         [string]$Name,
 
         # IPAddress to associate service with.
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("host")]
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('host')]
         [string]$IPAddress,
 
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true)]
+                   ValueFromPipelineByPropertyName=$true)]
         [string]$Workspace
        
     )
@@ -1273,7 +1273,7 @@ function Remove-MSFDBServcie
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -1286,12 +1286,12 @@ function Remove-MSFDBServcie
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -1327,20 +1327,20 @@ function Remove-MSFDBServcie
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.del_service", $dbops)
-        if ($request_reply.ContainsKey("error_code"))
+        $request_reply = $MSession.Session.Execute('db.del_service', $dbops)
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -1359,34 +1359,34 @@ function Remove-MSFDBServcie
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.del_service", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.del_service', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $deleteprops = [ordered]@{}
                         $deleteprops.add('MSHost', $MSession.Host)
-                        $deleteprops.Add("MSSessionID", $Id)
+                        $deleteprops.Add('MSSessionID', $Id)
                         $deletedrecs = @()
                         foreach ($prop in $request_reply.keys)
                         {
-                            if ($prop -eq "deleted")
+                            if ($prop -eq 'deleted')
                             {
                                 foreach ($record in $request_reply['deleted'] )
                                 {
                                     $deletedrecs += New-Object -TypeName psobject -Property $record
                                 }
-                                $deleteprops.add("deleted",$deletedrecs)
+                                $deleteprops.add('deleted',$deletedrecs)
                             }
                         }
                         $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                        $connectobj.pstypenames[0] = "Metasploit.Removed.Service"
+                        $connectobj.pstypenames[0] = 'Metasploit.Removed.Service'
                         $connectobj 
                     }
                 }
@@ -1396,7 +1396,7 @@ function Remove-MSFDBServcie
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -1406,21 +1406,21 @@ function Remove-MSFDBServcie
             {
                 $deleteprops = [ordered]@{}
                 $deleteprops.add('MSHost', $MSession.Host)
-                $deleteprops.Add("MSSessionID", $Id)
+                $deleteprops.Add('MSSessionID', $Id)
                 $deletedrecs = @()
                 foreach ($prop in $request_reply.keys)
                 {
-                    if ($prop -eq "deleted")
+                    if ($prop -eq 'deleted')
                     {
                         foreach ($record in $request_reply['deleted'] )
                         {
                             $deletedrecs += New-Object -TypeName psobject -Property $record
                         }
-                        $deleteprops.add("deleted",$deletedrecs)
+                        $deleteprops.add('deleted',$deletedrecs)
                     }
                 }
                 $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                $connectobj.pstypenames[0] = "Metasploit.Removed.Service"
+                $connectobj.pstypenames[0] = 'Metasploit.Removed.Service'
                 $connectobj 
             }
         }
@@ -1463,16 +1463,16 @@ function Set-MSFDBVuln
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                    ParameterSetName = 'Index',
+                    Position=0,
+                    ValueFromPipeline=$true,
+                    ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -1529,7 +1529,7 @@ function Set-MSFDBVuln
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -1542,12 +1542,12 @@ function Set-MSFDBVuln
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -1588,20 +1588,20 @@ function Set-MSFDBVuln
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.report_vuln", $dbops)
-        if ($request_reply.ContainsKey("error_code"))
+        $request_reply = $MSession.Session.Execute('db.report_vuln', $dbops)
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -1620,21 +1620,21 @@ function Set-MSFDBVuln
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.report_vuln", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.report_vuln', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -1644,7 +1644,7 @@ function Set-MSFDBVuln
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -1653,9 +1653,9 @@ function Set-MSFDBVuln
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $Id)
+                $request_reply.Add('MSSessionID', $Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -1689,16 +1689,16 @@ function Get-MSFDBVuln
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -1755,7 +1755,7 @@ function Get-MSFDBVuln
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -1768,12 +1768,12 @@ function Get-MSFDBVuln
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -1819,21 +1819,21 @@ function Get-MSFDBVuln
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.vulns", $dbops)
+        $request_reply = $MSession.Session.Execute('db.vulns', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -1852,30 +1852,30 @@ function Get-MSFDBVuln
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.vulns", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.vulns', $dbops)
                     if ($request_reply.ContainsKey('vulns'))
                     {
                         foreach ($vuln in $request_reply['vulns'])
                         {
                             $vulnops = [ordered]@{}
-                            $vulnops.Add("Host", $vuln.host)
-                            $vulnops.Add("Port", $vuln.port)
-                            $vulnops.Add("proto", $vuln.proto)
-                            $vulnops.Add("Name", $vuln.name)
-                            $vulnops.Add("References", $vuln.refs)
-                            $vulnops.Add("Time", $origin.AddSeconds($vuln.time))
-                            $vulnops.Add("MSHost", $MSession.Host)
-                            $vulnops.Add("MSSessionID", $MSession.Id)
+                            $vulnops.Add('Host', $vuln.host)
+                            $vulnops.Add('Port', $vuln.port)
+                            $vulnops.Add('proto', $vuln.proto)
+                            $vulnops.Add('Name', $vuln.name)
+                            $vulnops.Add('References', $vuln.refs)
+                            $vulnops.Add('Time', $origin.AddSeconds($vuln.time))
+                            $vulnops.Add('MSHost', $MSession.Host)
+                            $vulnops.Add('MSSessionID', $MSession.Id)
                             $vulnobj = New-Object -TypeName psobject -Property $vulnops
-                            $vulnobj.pstypenames[0] = "Metasploit.Vuln"
+                            $vulnobj.pstypenames[0] = 'Metasploit.Vuln'
                             $vulnobj 
                         }
                     }
@@ -1886,7 +1886,7 @@ function Get-MSFDBVuln
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -1897,16 +1897,16 @@ function Get-MSFDBVuln
                 foreach ($vuln in $request_reply['vulns'])
                 {
                     $vulnops = [ordered]@{}
-                    $vulnops.Add("Host", $vuln.host)
-                    $vulnops.Add("Port", $vuln.port)
-                    $vulnops.Add("proto", $vuln.proto)
-                    $vulnops.Add("Name", $vuln.name)
-                    $vulnops.Add("References", $vuln.refs)
-                    $vulnops.Add("Time", $origin.AddSeconds($vuln.time))
-                    $vulnops.Add("MSHost", $MSession.Host)
-                    $vulnops.Add("MSSessionID", $MSession.Id)
+                    $vulnops.Add('Host', $vuln.host)
+                    $vulnops.Add('Port', $vuln.port)
+                    $vulnops.Add('proto', $vuln.proto)
+                    $vulnops.Add('Name', $vuln.name)
+                    $vulnops.Add('References', $vuln.refs)
+                    $vulnops.Add('Time', $origin.AddSeconds($vuln.time))
+                    $vulnops.Add('MSHost', $MSession.Host)
+                    $vulnops.Add('MSSessionID', $MSession.Id)
                     $vulnobj = New-Object -TypeName psobject -Property $vulnops
-                    $vulnobj.pstypenames[0] = "Metasploit.Vuln"
+                    $vulnobj.pstypenames[0] = 'Metasploit.Vuln'
                     $vulnobj 
                 }
             }
@@ -1928,16 +1928,16 @@ function Remove-MSFDBVuln
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -1990,7 +1990,7 @@ function Remove-MSFDBVuln
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -2003,12 +2003,12 @@ function Remove-MSFDBVuln
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -2045,21 +2045,21 @@ function Remove-MSFDBVuln
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.del_vuln", $dbops)
+        $request_reply = $MSession.Session.Execute('db.del_vuln', $dbops)
         $request_reply
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -2078,22 +2078,22 @@ function Remove-MSFDBVuln
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.del_vuln", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.del_vuln', $dbops)
                     $request_reply
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -2103,7 +2103,7 @@ function Remove-MSFDBVuln
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -2112,9 +2112,9 @@ function Remove-MSFDBVuln
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $Id)
+                $request_reply.Add('MSSessionID', $Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -2202,16 +2202,16 @@ function Get-MSFDBNote
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -2274,7 +2274,7 @@ function Get-MSFDBNote
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -2287,12 +2287,12 @@ function Get-MSFDBNote
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -2343,21 +2343,21 @@ function Get-MSFDBNote
             $dbops.Add('ntype',$Type.ToLower())
         }
 
-        $request_reply = $MSession.Session.Execute("db.notes", $dbops)
+        $request_reply = $MSession.Session.Execute('db.notes', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -2376,29 +2376,29 @@ function Get-MSFDBNote
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.notes", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.notes', $dbops)
                     if ($request_reply.ContainsKey('notes'))
                     {
                         foreach ($note in $request_reply['notes'])
                         {
                             $noteops = [ordered]@{}
-                            $noteops.Add("Host", $note.host)
-                            $noteops.Add("Service", $note.service)
-                            $noteops.Add("Data", $note.data)
-                            $noteops.Add("Type", $note.type)
-                            $noteops.Add("Time", $origin.AddSeconds($note.time))
-                            $noteops.Add("MSHost", $MSession.Host)
-                            $noteops.Add("MSSessionID", $MSession.Id)
+                            $noteops.Add('Host', $note.host)
+                            $noteops.Add('Service', $note.service)
+                            $noteops.Add('Data', $note.data)
+                            $noteops.Add('Type', $note.type)
+                            $noteops.Add('Time', $origin.AddSeconds($note.time))
+                            $noteops.Add('MSHost', $MSession.Host)
+                            $noteops.Add('MSSessionID', $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $noteops
-                            $notenobj.pstypenames[0] = "Metasploit.Note"
+                            $notenobj.pstypenames[0] = 'Metasploit.Note'
                             $notenobj 
                         }
                     }
@@ -2409,7 +2409,7 @@ function Get-MSFDBNote
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -2420,15 +2420,15 @@ function Get-MSFDBNote
                 foreach ($note in $request_reply['notes'])
                 {
                     $noteops = [ordered]@{}
-                    $noteops.Add("Host", $note.host)
-                    $noteops.Add("Service", $note.service)
-                    $noteops.Add("Data", $note.data)
-                    $noteops.Add("Type", $note.type)
-                    $noteops.Add("Time", $origin.AddSeconds($note.time))
-                    $noteops.Add("MSHost", $MSession.Host)
-                    $noteops.Add("MSSessionID", $MSession.Id)
+                    $noteops.Add('Host', $note.host)
+                    $noteops.Add('Service', $note.service)
+                    $noteops.Add('Data', $note.data)
+                    $noteops.Add('Type', $note.type)
+                    $noteops.Add('Time', $origin.AddSeconds($note.time))
+                    $noteops.Add('MSHost', $MSession.Host)
+                    $noteops.Add('MSSessionID', $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $noteops
-                    $notenobj.pstypenames[0] = "Metasploit.Note"
+                    $notenobj.pstypenames[0] = 'Metasploit.Note'
                     $notenobj 
                 }
             }
@@ -2471,16 +2471,16 @@ function Set-MSFDBNote
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -2515,8 +2515,8 @@ function Set-MSFDBNote
         # what to do in case a similar Note exists
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("Unique","Unique_Data", "Insert")]
-        [string]$Update = "Insert",
+        [ValidateSet('Unique','Unique_Data', 'Insert')]
+        [string]$Update = 'Insert',
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
@@ -2543,7 +2543,7 @@ function Set-MSFDBNote
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -2556,12 +2556,12 @@ function Set-MSFDBNote
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -2602,21 +2602,21 @@ function Set-MSFDBNote
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.report_note", $dbops)
+        $request_reply = $MSession.Session.Execute('db.report_note', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -2635,21 +2635,21 @@ function Set-MSFDBNote
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.report_note", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.report_note', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -2659,7 +2659,7 @@ function Set-MSFDBNote
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -2668,9 +2668,9 @@ function Set-MSFDBNote
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -2685,16 +2685,16 @@ function Remove-MSFDBNote
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -2744,7 +2744,7 @@ function Remove-MSFDBNote
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -2757,12 +2757,12 @@ function Remove-MSFDBNote
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -2794,21 +2794,21 @@ function Remove-MSFDBNote
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.del_note", $dbops)
+        $request_reply = $MSession.Session.Execute('db.del_note', $dbops)
         $request_reply
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -2827,34 +2827,34 @@ function Remove-MSFDBNote
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.del_note", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.del_note', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $deleteprops = [ordered]@{}
                         $deleteprops.add('MSHost', $MSession.Host)
-                        $deleteprops.Add("MSSessionID", $Id)
+                        $deleteprops.Add('MSSessionID', $Id)
                         $deletedrecs = @()
                         foreach ($prop in $request_reply.keys)
                         {
-                            if ($prop -eq "deleted")
+                            if ($prop -eq 'deleted')
                             {
                                 foreach ($record in $request_reply['deleted'] )
                                 {
                                     $deletedrecs += New-Object -TypeName psobject -Property $record
                                 }
-                                $deleteprops.add("deleted",$deletedrecs)
+                                $deleteprops.add('deleted',$deletedrecs)
                             }
                         }
                         $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -2864,7 +2864,7 @@ function Remove-MSFDBNote
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -2874,21 +2874,21 @@ function Remove-MSFDBNote
             {
                 $deleteprops = [ordered]@{}
                 $deleteprops.add('MSHost', $MSession.Host)
-                $deleteprops.Add("MSSessionID", $Id)
+                $deleteprops.Add('MSSessionID', $Id)
                 $deletedrecs = @()
                 foreach ($prop in $request_reply.keys)
                 {
-                    if ($prop -eq "deleted")
+                    if ($prop -eq 'deleted')
                     {
                         foreach ($record in $request_reply['deleted'] )
                         {
                             $deletedrecs += New-Object -TypeName psobject -Property $record
                         }
-                        $deleteprops.add("deleted",$deletedrecs)
+                        $deleteprops.add('deleted',$deletedrecs)
                     }
                 }
                 $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -2933,16 +2933,16 @@ function Get-MSFDBEvent
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -2980,7 +2980,7 @@ function Get-MSFDBEvent
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -2993,12 +2993,12 @@ function Get-MSFDBEvent
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -3019,21 +3019,21 @@ function Get-MSFDBEvent
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.events", $dbops)
+        $request_reply = $MSession.Session.Execute('db.events', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -3052,28 +3052,28 @@ function Get-MSFDBEvent
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.events", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.events', $dbops)
                     if ($request_reply.ContainsKey('events'))
                     {
                         foreach ($event in $request_reply['events'])
                         {
                             $eventprops = [ordered]@{}
-                            $eventprops.Add("Name", $event.name)
-                            $eventprops.Add("Info", $event.info)
-                            $eventprops.Add("Updated", $origin.AddSeconds($event.updated_at))
-                            $eventprops.Add("Created", $origin.AddSeconds($event.created_at))
-                            $eventprops.Add("MSHost", $MSession.Host)
-                            $eventprops.Add("MSSessionID", $MSession.Id)
+                            $eventprops.Add('Name', $event.name)
+                            $eventprops.Add('Info', $event.info)
+                            $eventprops.Add('Updated', $origin.AddSeconds($event.updated_at))
+                            $eventprops.Add('Created', $origin.AddSeconds($event.created_at))
+                            $eventprops.Add('MSHost', $MSession.Host)
+                            $eventprops.Add('MSSessionID', $MSession.Id)
                             $eventobj = New-Object -TypeName psobject -Property $eventprops
-                            $eventobj.pstypenames[0] = "Metasploit.Event"
+                            $eventobj.pstypenames[0] = 'Metasploit.Event'
                             $eventobj 
                         }
                     }
@@ -3084,7 +3084,7 @@ function Get-MSFDBEvent
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -3095,14 +3095,14 @@ function Get-MSFDBEvent
                 foreach ($event in $request_reply['events'])
                 {
                     $eventprops = [ordered]@{}
-                    $eventprops.Add("Name", $event.name)
-                    $eventprops.Add("Info", $event.info)
-                    $eventprops.Add("Updated", $origin.AddSeconds($event.updated_at))
-                    $eventprops.Add("Created", $origin.AddSeconds($event.created_at))
-                    $eventprops.Add("MSHost", $MSession.Host)
-                    $eventprops.Add("MSSessionID", $MSession.Id)
+                    $eventprops.Add('Name', $event.name)
+                    $eventprops.Add('Info', $event.info)
+                    $eventprops.Add('Updated', $origin.AddSeconds($event.updated_at))
+                    $eventprops.Add('Created', $origin.AddSeconds($event.created_at))
+                    $eventprops.Add('MSHost', $MSession.Host)
+                    $eventprops.Add('MSSessionID', $MSession.Id)
                     $eventobj = New-Object -TypeName psobject -Property $eventprops
-                    $eventobj.pstypenames[0] = "Metasploit.Event"
+                    $eventobj.pstypenames[0] = 'Metasploit.Event'
                     $eventobj 
                 }
             }
@@ -3132,16 +3132,16 @@ function Set-MSFDBCred
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -3165,7 +3165,7 @@ function Set-MSFDBCred
         # Type of credential
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [ValidateSet("SMB_Hash","Hash","Password","Password_RO" )]
+        [ValidateSet('SMB_Hash','Hash','Password','Password_RO' )]
         [string]$Type,
 
         # IPAddress to associate credential
@@ -3221,7 +3221,7 @@ function Set-MSFDBCred
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -3234,12 +3234,12 @@ function Set-MSFDBCred
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -3298,20 +3298,20 @@ function Set-MSFDBCred
 
         $dbops.Add('active', $Active)
 
-        $request_reply = $MSession.Session.Execute("db.report_cred", $dbops)
-        if ($request_reply.ContainsKey("error_code"))
+        $request_reply = $MSession.Session.Execute('db.report_cred', $dbops)
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -3330,21 +3330,21 @@ function Set-MSFDBCred
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.report_cred", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.report_cred', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -3354,7 +3354,7 @@ function Set-MSFDBCred
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -3363,9 +3363,9 @@ function Set-MSFDBCred
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $Id)
+                $request_reply.Add('MSSessionID', $Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -3400,16 +3400,16 @@ function Get-MSFDBCred
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -3427,10 +3427,10 @@ function Get-MSFDBCred
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+        ParameterSetName = 'Session')]
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
+        ParameterSetName = 'Index')]
         [string]$Workspace
        
     )
@@ -3451,7 +3451,7 @@ function Get-MSFDBCred
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -3464,12 +3464,12 @@ function Get-MSFDBCred
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -3490,21 +3490,21 @@ function Get-MSFDBCred
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.creds", $dbops)
+        $request_reply = $MSession.Session.Execute('db.creds', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -3523,23 +3523,23 @@ function Get-MSFDBCred
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.creds", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.creds', $dbops)
                     if ($request_reply.ContainsKey('creds'))
                     {
                         foreach ($cred in $request_reply['creds'])
                         {
                             $cred.add('MSHost', $MSession.Host)
-                            $cred.Add("MSSessionID", $MSession.Id)
+                            $cred.Add('MSSessionID', $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $cred
-                            $notenobj.pstypenames[0] = "Metasploit.Cred"
+                            $notenobj.pstypenames[0] = 'Metasploit.Cred'
                             $notenobj 
                         }
                     }
@@ -3550,7 +3550,7 @@ function Get-MSFDBCred
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -3561,9 +3561,9 @@ function Get-MSFDBCred
                 foreach ($cred in $request_reply['creds'])
                 {
                     $cred.add('MSHost', $MSession.Host)
-                    $cred.Add("MSSessionID", $MSession.Id)
+                    $cred.Add('MSSessionID', $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $cred
-                    $notenobj.pstypenames[0] = "Metasploit.Event"
+                    $notenobj.pstypenames[0] = 'Metasploit.Event'
                     $notenobj 
                 }
             }
@@ -3598,16 +3598,16 @@ function Get-MSFDBLoot
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -3625,10 +3625,10 @@ function Get-MSFDBLoot
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+        ParameterSetName = 'Session')]
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
+        ParameterSetName = 'Index')]
         [string]$Workspace
        
     )
@@ -3649,7 +3649,7 @@ function Get-MSFDBLoot
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -3662,12 +3662,12 @@ function Get-MSFDBLoot
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse filtering options
@@ -3688,21 +3688,21 @@ function Get-MSFDBLoot
             $dbops.Add('workspace', $Workspace)
         }
 
-        $request_reply = $MSession.Session.Execute("db.loots", $dbops)
+        $request_reply = $MSession.Session.Execute('db.loots', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -3721,23 +3721,23 @@ function Get-MSFDBLoot
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.loots", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.loots', $dbops)
                     if ($request_reply.ContainsKey('loots'))
                     {
                         foreach ($loot in $request_reply['loots'])
                         {
                             $loot.add('MSHost', $MSession.Host)
-                            $loot.Add("MSSessionID", $MSession.Id)
+                            $loot.Add('MSSessionID', $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $loot
-                            $notenobj.pstypenames[0] = "Metasploit.Loot"
+                            $notenobj.pstypenames[0] = 'Metasploit.Loot'
                             $notenobj 
                         }
                     }
@@ -3748,7 +3748,7 @@ function Get-MSFDBLoot
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -3759,9 +3759,9 @@ function Get-MSFDBLoot
                 foreach ($loot in $request_reply['loots'])
                 {
                     $loot.add('MSHost', $MSession.Host)
-                    $loot.Add("MSSessionID", $MSession.Id)
+                    $loot.Add('MSSessionID', $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $loot
-                    $notenobj.pstypenames[0] = "Metasploit.Loot"
+                    $notenobj.pstypenames[0] = 'Metasploit.Loot'
                     $notenobj 
                 }
             }
@@ -3791,16 +3791,16 @@ function Get-MSFDBStatus
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -3823,7 +3823,7 @@ function Get-MSFDBStatus
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -3836,29 +3836,29 @@ function Get-MSFDBStatus
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
-        $request_reply = $MSession.Session.Execute("db.status")
+        $request_reply = $MSession.Session.Execute('db.status')
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -3877,26 +3877,26 @@ function Get-MSFDBStatus
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.status")
+                    $request_reply = $sessionobj.Session.Execute('db.status')
                     if ($request_reply.ContainsKey('driver'))
                     {
                         
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         if (!($request_reply.ContainsKey('db')))
                         {
-                            $request_reply.add('db', "")
+                            $request_reply.add('db', '')
                         }
                         $dbstatobj = New-Object -TypeName psobject -Property $request_reply
-                        $dbstatobj.pstypenames[0] = "Metasploit.DBStatus"
+                        $dbstatobj.pstypenames[0] = 'Metasploit.DBStatus'
                         $dbstatobj 
                         
                     }
@@ -3907,7 +3907,7 @@ function Get-MSFDBStatus
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -3917,13 +3917,13 @@ function Get-MSFDBStatus
             {
                         
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 if (!($request_reply.ContainsKey('db')))
                 {
-                    $request_reply.add('db', "")
+                    $request_reply.add('db', '')
                 }
                 $dbstatobj = New-Object -TypeName psobject -Property $request_reply
-                $dbstatobj.pstypenames[0] = "Metasploit.DBStatus"
+                $dbstatobj.pstypenames[0] = 'Metasploit.DBStatus'
                 $dbstatobj 
                         
             }
@@ -3952,16 +3952,16 @@ function Connect-MSFDB
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4006,7 +4006,7 @@ function Connect-MSFDB
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4019,12 +4019,12 @@ function Connect-MSFDB
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         # Parse connection options
@@ -4037,21 +4037,21 @@ function Connect-MSFDB
         $dbops.Add('password',$Credentials.GetNetworkCredential().Password)
         $dbops.Add('port',$Port)
 
-        $request_reply = $MSession.Session.Execute("db.connect", $dbops)
+        $request_reply = $MSession.Session.Execute('db.connect', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4070,21 +4070,21 @@ function Connect-MSFDB
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.connect", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.connect', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -4094,7 +4094,7 @@ function Connect-MSFDB
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4103,9 +4103,9 @@ function Connect-MSFDB
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -4133,16 +4133,16 @@ function Disconnect-MSFDB
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4165,7 +4165,7 @@ function Disconnect-MSFDB
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4178,29 +4178,29 @@ function Disconnect-MSFDB
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
-        $request_reply = $MSession.Session.Execute("db.disconnect")
+        $request_reply = $MSession.Session.Execute('db.disconnect')
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4219,21 +4219,21 @@ function Disconnect-MSFDB
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.disconnect", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.disconnect', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -4243,7 +4243,7 @@ function Disconnect-MSFDB
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4252,9 +4252,9 @@ function Disconnect-MSFDB
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -4284,16 +4284,16 @@ function Get-MSFDBWorspace
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4317,7 +4317,7 @@ function Get-MSFDBWorspace
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4330,29 +4330,29 @@ function Get-MSFDBWorspace
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
-        $request_reply = $MSession.Session.Execute("db.workspaces")
+        $request_reply = $MSession.Session.Execute('db.workspaces')
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4371,27 +4371,27 @@ function Get-MSFDBWorspace
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.workspaces")
+                    $request_reply = $sessionobj.Session.Execute('db.workspaces')
                     if ($request_reply.ContainsKey('workspaces'))
                     {
                         foreach ($workspace in $request_reply['workspaces'])
                         {
                             $wrkprops = [ordered]@{}
-                            $wrkprops.Add("Name", $workspace.name)
-                            $wrkprops.Add("Updated", $origin.AddSeconds($workspace.updated_at))
-                            $wrkprops.Add("Created", $origin.AddSeconds($workspace.created_at))
+                            $wrkprops.Add('Name', $workspace.name)
+                            $wrkprops.Add('Updated', $origin.AddSeconds($workspace.updated_at))
+                            $wrkprops.Add('Created', $origin.AddSeconds($workspace.created_at))
                             $wrkprops.add('MSHost', $MSession.Host)
-                            $wrkprops.Add("MSSessionID", $MSession.Id)
+                            $wrkprops.Add('MSSessionID', $MSession.Id)
                             $wsobj = New-Object -TypeName psobject -Property $wrkprops
-                            $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                            $wsobj.pstypenames[0] = 'Metasploit.Workspace'
                             $wsobj 
                         }
                     }
@@ -4402,7 +4402,7 @@ function Get-MSFDBWorspace
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4413,13 +4413,13 @@ function Get-MSFDBWorspace
                 foreach ($workspace in $request_reply['workspaces'])
                 {
                     $wrkprops = [ordered]@{}
-                    $wrkprops.Add("Name", $workspace.name)
-                    $wrkprops.Add("Updated", $origin.AddSeconds($workspace.updated_at))
-                    $wrkprops.Add("Created", $origin.AddSeconds($workspace.created_at))
+                    $wrkprops.Add('Name', $workspace.name)
+                    $wrkprops.Add('Updated', $origin.AddSeconds($workspace.updated_at))
+                    $wrkprops.Add('Created', $origin.AddSeconds($workspace.created_at))
                     $wrkprops.add('MSHost', $MSession.Host)
-                    $wrkprops.Add("MSSessionID", $MSession.Id)
+                    $wrkprops.Add('MSSessionID', $MSession.Id)
                     $wsobj = New-Object -TypeName psobject -Property $wrkprops
-                    $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                    $wsobj.pstypenames[0] = 'Metasploit.Workspace'
                     $wsobj 
                 }
             }
@@ -4448,16 +4448,16 @@ function Get-MSFDBCurrentWorspace
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4481,7 +4481,7 @@ function Get-MSFDBCurrentWorspace
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4494,29 +4494,29 @@ function Get-MSFDBCurrentWorspace
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
-        $request_reply = $MSession.Session.Execute("db.current_workspace")
+        $request_reply = $MSession.Session.Execute('db.current_workspace')
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4535,21 +4535,21 @@ function Get-MSFDBCurrentWorspace
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.current_workspace")
+                    $request_reply = $sessionobj.Session.Execute('db.current_workspace')
                     if ($request_reply.ContainsKey('workspace'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $wsobj = New-Object -TypeName psobject -Property $request_reply
-                        $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                        $wsobj.pstypenames[0] = 'Metasploit.Workspace'
                         $wsobj 
                     }
                 }
@@ -4559,7 +4559,7 @@ function Get-MSFDBCurrentWorspace
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4568,9 +4568,9 @@ function Get-MSFDBCurrentWorspace
             if ($request_reply.ContainsKey('workspace'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $wsobj = New-Object -TypeName psobject -Property $request_reply
-                $wsobj.pstypenames[0] = "Metasploit.Default.Workspace"
+                $wsobj.pstypenames[0] = 'Metasploit.Default.Workspace'
                 $wsobj 
             }
         }
@@ -4599,16 +4599,16 @@ function New-MSFDBWorkspace
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4617,11 +4617,11 @@ function New-MSFDBWorkspace
         # Workspace name
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         Position=0)]
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0)]
         [string]$Workspace
     )
@@ -4642,7 +4642,7 @@ function New-MSFDBWorkspace
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4655,29 +4655,29 @@ function New-MSFDBWorkspace
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $request_reply = $MSession.Session.Execute('db.add_workspace', $Workspace)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4696,10 +4696,10 @@ function New-MSFDBWorkspace
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
@@ -4708,9 +4708,9 @@ function New-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -4720,7 +4720,7 @@ function New-MSFDBWorkspace
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4729,9 +4729,9 @@ function New-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -4757,16 +4757,16 @@ function Remove-MSFDBWorkspace
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4775,11 +4775,11 @@ function Remove-MSFDBWorkspace
         # Workspace name
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         Position=0)]
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0)]
         [string]$Workspace
     )
@@ -4800,7 +4800,7 @@ function Remove-MSFDBWorkspace
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4813,29 +4813,29 @@ function Remove-MSFDBWorkspace
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $request_reply = $MSession.Session.Execute('db.del_workspace', $Workspace)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -4854,10 +4854,10 @@ function Remove-MSFDBWorkspace
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
@@ -4866,9 +4866,9 @@ function Remove-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -4878,7 +4878,7 @@ function Remove-MSFDBWorkspace
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -4887,9 +4887,9 @@ function Remove-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -4937,16 +4937,16 @@ function Set-MSFDBWorkspace
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0,
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$true,
         Position=0)]
@@ -4955,11 +4955,11 @@ function Set-MSFDBWorkspace
         # Workspace name
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session",
+        ParameterSetName = 'Session',
         Position=0)]
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index",
+        ParameterSetName = 'Index',
         Position=0)]
         [string]$Workspace
     )
@@ -4980,7 +4980,7 @@ function Set-MSFDBWorkspace
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -4993,29 +4993,29 @@ function Set-MSFDBWorkspace
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         $request_reply = $MSession.Session.Execute('db.set_workspace', $Workspace)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -5034,10 +5034,10 @@ function Set-MSFDBWorkspace
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
@@ -5046,9 +5046,9 @@ function Set-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -5058,7 +5058,7 @@ function Set-MSFDBWorkspace
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -5067,9 +5067,9 @@ function Set-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
@@ -5199,34 +5199,34 @@ function Import-MSFDBData
 
         # Metasploit session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0,
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [Alias("Index","MSSessionID")]
+                   ParameterSetName = 'Index',
+                   Position=0,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Alias('Index','MSSessionID')]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=0)]
+                   ParameterSetName = 'Session',
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
         [psobject]$Session,
 
          # Workspace to execute query against
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+                   ValueFromPipelineByPropertyName=$true,
+                   ParameterSetName = 'Session')]
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
+                   ValueFromPipelineByPropertyName=$true,
+                   ParameterSetName = 'Index')]
         [string]$Workspace,
 
         # File with data to import
         [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
         [ValidateScript({Test-Path $_})]
         [string]$File
 
@@ -5249,7 +5249,7 @@ function Import-MSFDBData
                 }
             }
         }
-        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq 'Metasploit.Session')
         {
             if ($Global:MetasploitConn.Contains($Session))
             {
@@ -5262,12 +5262,12 @@ function Import-MSFDBData
         }
         else 
         {
-            throw "No Metasploit server session was provided"
+            throw 'No Metasploit server session was provided'
         }
 
         if ($MSession -eq $null)
         {
-            throw "Specified session was not found"
+            throw 'Specified session was not found'
         }
 
         Write-Verbose "Reading file $($File)"
@@ -5278,21 +5278,21 @@ function Import-MSFDBData
         $dbops.Add('data',$Data)
  
 
-        $request_reply = $MSession.Session.Execute("db.import_data", $dbops)
+        $request_reply = $MSession.Session.Execute('db.import_data', $dbops)
 
-        if ($request_reply.ContainsKey("error_code"))
+        if ($request_reply.ContainsKey('error_code'))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
             if ($request_reply.error_code -eq 401)
             {
-                write-verbose "The session has expired, Re-authenticating"
+                write-verbose 'The session has expired, Re-authenticating'
 
                 $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
                 $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
                 $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
                 if ($msfsess)
                 {
-                    Write-Verbose "Authentication successful."
+                    Write-Verbose 'Authentication successful.'
                     # Select the correct session manager for the existing session
                     if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
                     {
@@ -5311,21 +5311,21 @@ function Import-MSFDBData
                     $SessionProps.Add('Credentials',$MSession.Credentials)
                     $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
-                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+                    $sessionobj.pstypenames[0] = 'Metasploit.Session'
 
                     # Update the session with the new information
-                    Write-Verbose "Updating session with new authentication token"
+                    Write-Verbose 'Updating session with new authentication token'
                     [void]$Global:MetasploitConn.Remove($MSession)
                     [void]$Global:MetasploitConn.Add($sessionobj)
                     
                     # Get again the Optios
-                    $request_reply = $sessionobj.Session.Execute("db.import_data", $dbops)
+                    $request_reply = $sessionobj.Session.Execute('db.import_data', $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
-                        $request_reply.Add("MSSessionID", $MSession.Id)
+                        $request_reply.Add('MSSessionID', $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = 'Metasploit.Action'
                         $connectobj 
                     }
                 }
@@ -5336,7 +5336,7 @@ function Import-MSFDBData
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($request_reply.ContainsKey('error_message'))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -5345,9 +5345,9 @@ function Import-MSFDBData
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.Add("MSSessionID", $MSession.Id)
+                $request_reply.Add('MSSessionID', $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = 'Metasploit.Action'
                 $connectobj 
             }
         }
